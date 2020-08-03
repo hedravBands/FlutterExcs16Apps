@@ -13,6 +13,39 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
+  TextEditingController weightController = TextEditingController();
+  TextEditingController heightController = TextEditingController();
+  String _result = "Insert Values";
+
+  void _resetFields(){
+    weightController.text = "";
+    heightController.text = "";
+
+    setState(() {
+      _result = "Inform Values";
+    });
+
+  }
+
+  void _calculate(){
+
+    setState(() {
+      double weight = double.parse(weightController.text);
+      double height = double.parse(heightController.text) / 100; //unit in m
+      double bmi = weight / (height*height);
+      print(bmi);
+      if(bmi < 18.6) {
+        _result = "Under weight (BMI: ${bmi.toStringAsPrecision(3)})";
+      } else if(bmi >= 18.6 && bmi < 24.9){
+        _result = "Ideal weight (BMI: ${bmi.toStringAsPrecision(3)})";
+      } else if(bmi >= 25.0 && bmi < 29.9){
+        _result = "Above weight (BMI: ${bmi.toStringAsPrecision(3)})";
+      } else {
+        _result = "Obesity detected (BMI: ${bmi.toStringAsPrecision(3)})";
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,7 +56,7 @@ class _HomeState extends State<Home> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.refresh),
-              onPressed: () {},
+              onPressed: _resetFields,
             )
           ],
         ),
@@ -43,6 +76,7 @@ class _HomeState extends State<Home> {
                   ),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),
+                  controller: weightController,
                 ),
                 TextField(
                   keyboardType: TextInputType.number,
@@ -52,6 +86,7 @@ class _HomeState extends State<Home> {
                   ),
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),
+                  controller: heightController,
                 ),
                 Padding(
                 padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
@@ -59,7 +94,7 @@ class _HomeState extends State<Home> {
                       height: 50.0,
                       child:
                       RaisedButton(
-                        onPressed: () {},
+                        onPressed: _calculate,
                         color: Colors.green,
                         child: Text(
                           "Calculate",
@@ -68,7 +103,7 @@ class _HomeState extends State<Home> {
                       )
                   ),
                 ),
-                Text("Result Here", textAlign: TextAlign.center,
+                Text("$_result", textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),)
               ],
             )),

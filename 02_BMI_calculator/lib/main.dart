@@ -16,19 +16,18 @@ class _HomeState extends State<Home> {
   TextEditingController weightController = TextEditingController();
   TextEditingController heightController = TextEditingController();
   String _result = "Insert Values";
+  GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   void _resetFields(){
     weightController.text = "";
     heightController.text = "";
-
     setState(() {
       _result = "Inform Values";
+      _formKey = GlobalKey<FormState>(); // reset focus on form
     });
-
   }
 
   void _calculate(){
-
     setState(() {
       double weight = double.parse(weightController.text);
       double height = double.parse(heightController.text) / 100; //unit in m
@@ -63,12 +62,13 @@ class _HomeState extends State<Home> {
         backgroundColor: Colors.white,
         body: SingleChildScrollView(
           padding: EdgeInsets.fromLTRB(10.0, 0.0, 10.0, 0.0),
-          child:
-            Column(
+          child: Form(
+            key: _formKey,
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
                 Icon(Icons.person_outline, size: 120.0, color: Colors.green),
-                TextField(
+                TextFormField(
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: "Weight (Kg)",
@@ -77,8 +77,16 @@ class _HomeState extends State<Home> {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),
                   controller: weightController,
+                  validator: (value){
+                    if (value.isEmpty) {
+                      setState(() {
+                        _result = "Inform Values";
+                      });
+                      return "Inform your Weight!";
+                    }
+                  },
                 ),
-                TextField(
+                TextFormField(
                   keyboardType: TextInputType.number,
                   decoration: InputDecoration(
                     labelText: "Height (cm)",
@@ -87,14 +95,26 @@ class _HomeState extends State<Home> {
                   textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),
                   controller: heightController,
+                  validator: (value){
+                    if (value.isEmpty){
+                      setState(() {
+                        _result = "Inform Values";
+                      });
+                      return "Inform your Height!";
+                    }
+                  },
                 ),
                 Padding(
-                padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
+                  padding: EdgeInsets.only(top: 10.0, bottom: 10.0),
                   child: Container(
                       height: 50.0,
                       child:
                       RaisedButton(
-                        onPressed: _calculate,
+                        onPressed: (){
+                          if(_formKey.currentState.validate()){
+                            _calculate();
+                          }
+                        },
                         color: Colors.green,
                         child: Text(
                           "Calculate",
@@ -106,7 +126,9 @@ class _HomeState extends State<Home> {
                 Text("$_result", textAlign: TextAlign.center,
                   style: TextStyle(color: Colors.green, fontSize: 25.0),)
               ],
-            )),
+            ),
+            )
+        ),
     );
   }
 }

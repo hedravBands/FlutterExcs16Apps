@@ -39,9 +39,30 @@ class Home extends StatefulWidget {
 
 class _HomeState extends State<Home> {
 
+  final realController =    TextEditingController();
+  final dollarController =  TextEditingController();
+  final euroController =    TextEditingController();
+
   double dollar;
   double euro;
 
+  void _realChanged(String text){
+    double real = double.parse(text);
+    dollarController.text = (real/dollar).toStringAsFixed(2);
+    euroController.text = (real/euro).toStringAsFixed(2);
+  }
+
+  void _dollarChanged(String text){
+    double dollar = double.parse(text);
+    realController.text = (dollar * this.dollar).toStringAsFixed(2);
+    euroController.text =  (dollar * this.dollar / euro).toStringAsFixed(2);
+  }
+
+  void _euroChanged(String text){
+    double euro = double.parse(text);
+    realController.text = (euro * this.euro).toStringAsFixed(2);
+    dollarController.text = (euro * this.euro / dollar).toStringAsFixed(2);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +88,6 @@ class _HomeState extends State<Home> {
                 );
               default:                                  //ConnectionState.done
                 if (snapshot.hasError) {
-
                   return Center(
                     child: Text("Error...",
                       style: TextStyle(
@@ -87,38 +107,12 @@ class _HomeState extends State<Home> {
                     children: <Widget>[
                       Icon(Icons.monetization_on,
                         size: 150.0, color: Colors.amber,),
-                      TextField(
-                        decoration: InputDecoration(
-                          labelText: "Reais",
-                          labelStyle: TextStyle(color: Colors.amber),
-                          border: OutlineInputBorder(),
-                          prefixText: "R\$",
-                        ),
-                        style: TextStyle(
-                            color: Colors.amber,
-                            fontSize: 25.0)),
+                      buildTextField("Reals", "R\$ ", realController, _realChanged),
                       Divider(),
-                      TextField(
-                          decoration: InputDecoration(
-                              labelText: "Dollars",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "US\$"
-                          ),
-                          style: TextStyle(
-                              color: Colors.amber,
-                              fontSize: 25.0)),
+                      buildTextField("Dollars", "US\$ ", dollarController, _dollarChanged),
                       Divider(),
-                      TextField(
-                          decoration: InputDecoration(
-                              labelText: "Euros",
-                              labelStyle: TextStyle(color: Colors.amber),
-                              border: OutlineInputBorder(),
-                              prefixText: "€"
-                          ),
-                          style: TextStyle(
-                              color: Colors.amber,
-                              fontSize: 25.0)),
+                      buildTextField("Euros", "€ ", euroController, _euroChanged),
+
                     ],
                   ),
                 );}
@@ -130,3 +124,20 @@ class _HomeState extends State<Home> {
 }
 
 
+Widget buildTextField(String label, String prefix, TextEditingController c,
+    Function f){
+  return TextField(
+      controller: c,
+      decoration: InputDecoration(
+        labelText: "$label",
+        labelStyle: TextStyle(color: Colors.amber),
+        border: OutlineInputBorder(),
+        prefixText: "$prefix",
+      ),
+      style: TextStyle(
+          color: Colors.amber,
+          fontSize: 25.0),
+      onChanged: f,
+      keyboardType: TextInputType.number,
+  );
+}

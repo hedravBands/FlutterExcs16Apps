@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
           "https://api.giphy.com/v1/gifs/trending?api_key=8lge2jaOAfpICnY7nIJkUAz8Ew1FlSRG&limit=20&rating=r");
     else
       response = await http.get(
-          "https://api.giphy.com/v1/gifs/search?api_key=8lge2jaOAfpICnY7nIJkUAz8Ew1FlSRG&q=$_search&limit=20&offset=$_offset&rating=r&lang=en");
+          "https://api.giphy.com/v1/gifs/search?api_key=8lge2jaOAfpICnY7nIJkUAz8Ew1FlSRG&q=$_search&limit=19&offset=$_offset&rating=r&lang=en");
 
     return json.decode(response.body);
   }
@@ -56,6 +56,13 @@ class _HomePageState extends State<HomePage> {
                   border: OutlineInputBorder()),
               style: TextStyle(color: Colors.white, fontSize: 18.0),
               textAlign: TextAlign.center,
+              onSubmitted: (text){
+                setState(() {
+                  _search = text;
+                  _offset = 0;
+                });
+              }
+
             ),
           ),
           Expanded(
@@ -69,6 +76,7 @@ class _HomePageState extends State<HomePage> {
                       return Container(
                         width: 200.0,
                         height: 200.0,
+                        alignment: Alignment.center,
                         child: CircularProgressIndicator(
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
@@ -86,19 +94,48 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  //used to create the last tile as 'load more'
+  int _getCount(int count){
+    if (_search == null) {return count;}
+    else {return count + 1;}
+  }
+
+
+
   Widget _createGifTable(BuildContext context, AsyncSnapshot snapshot) {
     return GridView.builder(
         padding: EdgeInsets.all(10.0),
         gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 2, crossAxisSpacing: 10.0, mainAxisSpacing: 10.0),
-        itemCount: snapshot.data["pagination"]["count"],
+        itemCount: _getCount(snapshot.data["pagination"]["count"]),
         itemBuilder: (context, index) {
-          return GestureDetector(
-              child: Image.network(
-            snapshot.data["data"][index]["images"]["fixed_height"]["url"],
-            height: 300.0,
-            fit: BoxFit.cover,
-          ));
+          if(_search == null || index < snapshot.data["pagination"]["count"])
+            return GestureDetector(
+                child: Image.network(
+                  snapshot.data["data"][index]["images"]["fixed_height"]["url"],
+                  height: 300.0,
+                  fit: BoxFit.cover,)
+            );
+           else
+            return Container(
+              child: GestureDetector(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(Icons.add, color: Colors.white, size: 70.0,),
+                      Text("Gimme more fun!",
+                      style: TextStyle(color: Colors.white, fontSize: 22.0),)
+                    ],
+                  ),
+                onTap: (){
+                  setState(() {
+                    _offset += 19;
+                  });
+                },
+              ),
+            );
+
+
         });
   }
 }

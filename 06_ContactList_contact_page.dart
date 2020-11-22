@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'dart:async';
 
 import 'package:contactlist/helpers/contact_helper.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class ContactPage extends StatefulWidget {
 
@@ -36,6 +38,7 @@ class _ContactPageState extends State<ContactPage> {
       _nameController.text = _editedContact.name;
       _emailController.text = _editedContact.email;
       _phoneController.text = _editedContact.phone;
+
 
     }
   }
@@ -75,10 +78,20 @@ class _ContactPageState extends State<ContactPage> {
                     image: DecorationImage(
                         image: _editedContact.img != null ?
                         FileImage(File(_editedContact.img)) :
-                        AssetImage("images/avatar.jpg")
+                        AssetImage("images/avatar.jpg"),
+                      fit: BoxFit.cover
                     ),
                   ),
                 ),
+                onTap: (){    //or ImageSource.gallery // permission for iOS
+                  ImagePicker.pickImage(source: ImageSource.camera).then((file){
+                    if(file==null) return;
+                    _userEdited = true;
+                    setState(() {
+                      _editedContact.img = file.path;
+                    });
+                  });
+                },
               ),
               TextField(
                 controller: _nameController,

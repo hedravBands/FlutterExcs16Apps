@@ -48,7 +48,9 @@ class _TextComposerState extends State<TextComposer> {
                   });
                 },
             onSubmitted: (text) {
-                  widget.sendMessage(text: text);
+                  if (text != ""){ //to avoid pressing Enter on empty text
+                    widget.sendMessage(text: text);
+                  }
                   _reset();
                   },
             )
